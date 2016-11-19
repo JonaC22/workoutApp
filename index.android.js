@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { AppRegistry, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import timer from 'react-native-timer';
+import Sound from 'react-native-sound';
 
 const styles = StyleSheet.create({
   titleText: {
@@ -36,12 +37,40 @@ export default class workoutApp extends Component {
     this.setState({showTimer: true}, () => timer.setInterval(
       this, 'sustractSecond', () => this.setState({secondsRemaining: this.state.secondsRemaining - 1}), 1000
     ));
+    this.playSound();
   }
 
   restartTimer() {
     this.setState({secondsRemaining: 3}, () => timer.setInterval(
       this, 'sustractSecond', () => this.setState({secondsRemaining: this.state.secondsRemaining - 1}), 1000
     ));
+    this.playSound();
+  }
+
+  playSound() {
+    // Load the sound file 'click.mp3' from the app bundle
+    // See notes below about preloading sounds within initialization code below.
+    let click = new Sound('click.mp3', Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        console.log('failed to load the sound', error);
+      } else { // loaded successfully
+        console.log('duration in seconds: ' + click.getDuration());
+
+        // Play the sound with an onEnd callback
+        click.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+
+        console.log('volume: ' + click.getVolume());
+        console.log('loops: ' + click.getNumberOfLoops());
+
+        click.getCurrentTime((seconds) => console.log('at ' + seconds));
+      }
+    });
   }
 
   render() {
